@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <!-- Favicon -->
+        <link rel="shortcut icon" type="image/png" href="img/Hopstarter-Halloween-Avatar-Dave.ico">
+
+    <meta charset="UTF-8">
+    <title>Abertura de Chamados - TI</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; margin-bottom: 20px; }
+        
+    /* Cards de indicadores */
+        .cards-indicadores { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 120px; background: #f8f9fa; padding: 12px; border-radius: 6px; border-left: 4px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .card.aberto { border-left-color: #d9534f; }
+        .card.andamento { border-left-color: #f0ad4e; }
+        .card.fechado { border-left-color: #5cb85c; }
+        .card.cancelado { border-left-color: #6c757d; }
+        .card h4 { margin: 0; font-size: 12px; color: #666; }
+        .card span { font-size: 18px; font-weight: bold; color: #333; display: block; margin-top: 4px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 100px; resize: vertical; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .painel-link { display: block; text-align: center; margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
+        .painel-link:hover { text-decoration: underline; }
+
+.footer-sistema {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 14px;
+    border-top: 1px solid #dee2e6;
+    margin-top: 40px;
+    width: 100%;
+}
+
+.footer-content p {
+    margin: 4px 0;
+}
+
+.footer-version {
+    font-size: 12px;
+    color: #adb5bd;
+}
+
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <img src="img/ams.png" alt="Logo da ams" style="max-width: 300px; height: auto;">
+    </div>
+
+    <!-- Cards de Estatísticas para o Usuário -->
+        <div class="cards-indicadores">
+            <div class="card aberto">
+                <h4>Abertos</h4>
+                <span id="cardAberto">0</span>
+            </div>
+            <div class="card andamento">
+                <h4>Em Andamento</h4>
+                <span id="cardAndamento">0</span>
+            </div>
+            <div class="card fechado">
+                <h4>Resolvidos</h4>
+                <span id="cardFechado">0</span>
+            </div>
+            <div class="card cancelado">
+                <h4>Cancelados</h4>
+                <span id="cardCancelado">0</span>
+            </div>
+        </div>
+
+    <h2>Abrir Novo Chamado de TI</h2>
+
+        <!-- Formulário de Abertura -->
+        <form id="formChamado">
+            <div class="form-group">
+                <label for="nome">Seu Nome:</label>
+                <input type="text" id="nome" required placeholder="Digite seu nome completo">
+            </div>
+
+            <div class="form-group">
+                <label for="setor">Seu Setor / Departamento:</label>
+                <select id="setor" required>
+                    <option value="">Selecione o setor...</option>
+                    <option value="RH">RH</option>
+                    <option value="PEDAGÓGICO">PEDAGÓGICO</option>
+                    <option value="PLATAFORMAS">PLATAFORMAS</option>
+                    <option value="SERE">SERE</option>
+                    <option value="PROTOCOLO">PROTOCOLO</option>
+                    <option value="OUVIDORIA">OUVIDORIA</option>
+                    <option value="FORMADORES">FORMADORES</option>
+                    <option value="ED. ESPECIAL">ED. ESPECIAL</option>
+                    <option value="ED. PROFISSIONAL">ED. PROFISSIONAL</option>
+                    <option value="NCPM">NCPM</option>
+                    <option value="EJA">EJA</option>
+                    <option value="FINANCEIRO">FINANCEIRO</option>
+                    <option value="ESTRUTURA">ESTRUTURA</option>
+                    <option value="ENGENHEIROS">ENGENHEIROS</option>
+                    <option value="TUTORIA">TUTORIA</option>
+                    <option value="INFRA">INFRA</option>
+                    <option value="NAS">NAS</option>
+                    <option value="CPADS">CPADS</option>
+                    <option value="EDH">EDH</option>
+                    <option value="MÃOS AMIGAS">MÃOS AMIGAS</option>
+                    <option value="EDIFICAÇÕES">EDIFICAÇõES</option>
+                    <option value="CRTE COMUNICAÇÃO">CRTE COMUNICAÇÃO</option>
+                    <option value="CRTE PEDAGÓGICO">CRTE PEDAGÓGICO</option>
+                    <option value="CHEFIA">CHEFIA</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="problema">Descrição do Problema:</label>
+                <textarea id="problema" required placeholder="Descreva o que está acontecendo..."></textarea>
+            </div>
+
+            <button type="submit">Enviar Chamado</button>
+        </form>
+
+        <a href="admin.html" class="painel-link">Acessar Painel da TI (Restrito)</a>
+    </div>
+
+    <script>
+        // Função para carregar os contadores na tela inicial
+        async function carregarEstatisticas() {
+            try {
+                const resposta = await fetch('/api/estatisticas');
+                const stats = await resposta.json();
+                
+                document.getElementById('cardAberto').innerText = stats.Aberto || 0;
+                document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
+                document.getElementById('cardFechado').innerText = stats.Fechado || 0;
+                document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
+            } catch (erro) {
+                console.error('Erro ao carregar estatísticas:', erro);
+            }
+        }
+
+        // Carrega ao abrir a página e atualiza a cada 30 segundos
+        carregarEstatisticas();
+        setInterval(carregarEstatisticas, 30000);
+
+        // Envio do formulário de chamado
+        document.getElementById('formChamado').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const dados = {
+                nome: document.getElementById('nome').value,
+                setor: document.getElementById('setor').value,
+                problema: document.getElementById('problema').value
+            };
+
+            try {
+                const resposta = await fetch('/api/chamados', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                if (resposta.ok) {
+                    alert('Chamado aberto com sucesso!');
+                    document.getElementById('formChamado').reset();
+                    carregarEstatisticas(); // Atualiza os cards na hora
+                } else {
+                    alert('Erro ao abrir o chamado.');
+                }
+            } catch (erro) {
+                console.error('Erro:', erro);
+                alert('Erro de conexão com o servidor.');
+            }
+        });
+    </script>
+
+    <!-- Rodapé do Sistema -->
+<footer class="footer-sistema">
+    <div class="footer-content">
+        <p>Desenvolvido por <strong>Fernando Pereira Nilsen</strong></p>
+        <p class="footer-version">Versão 1.0.0 &bull; 2026</p>
+    </div>
+</footer>
+
+</body>
+</html>
