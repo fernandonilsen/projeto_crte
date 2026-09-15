@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Chamados - TI</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/Hopstarter-Halloween-Avatar-Dave.ico">
+
+    <!-- Biblioteca SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+        
+    /* Tela de Login */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .login-card h3 { margin-top: 0; color: #333; }
+        .login-card input { width: 100%; padding: 10px; margin-top: 15px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .login-card button { width: 100%; padding: 10px; margin-top: 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .login-card button:hover { background-color: #0056b3; }
+
+        /* Painel protegido */
+        #admin-panel-content { display: none; flex: 1; }
+
+        .container { max-width: 1350px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; margin-bottom: 20px; }
+        
+        /* Cards de Indicadores */
+        .cards-indicadores { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 150px; background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .card.aberto { border-left-color: #d9534f; }
+        .card.andamento { border-left-color: #f0ad4e; }
+        .card.fechado { border-left-color: #5cb85c; }
+        .card.cancelado { border-left-color: #6c757d; }
+        .card h4 { margin: 0; font-size: 13px; color: #666; }
+        .card span { font-size: 22px; font-weight: bold; color: #333; display: block; margin-top: 5px; }
+
+        .topo-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .btn-filtro { padding: 8px 12px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; color: #555; }
+        .btn-filtro.ativo { background: #007bff; color: white; border-color: #007bff; }
+        
+        select.select-padrao { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; background: #fff; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 13px; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        /* Cores dos Status */
+        .status-aberto { color: #d9534f; font-weight: bold; }
+        .status-andamento { color: #f0ad4e; font-weight: bold; }
+        .status-fechado { color: #5cb85c; font-weight: bold; }
+        .status-cancelado { color: #6c757d; font-weight: bold; text-decoration: line-through; }
+
+        /* Botões de Ação */
+        .btn-acao { padding: 6px 8px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 11px; margin-right: 3px; }
+        .btn-atender { background-color: #f0ad4e; }
+        .btn-atender:hover { background-color: #ec971f; }
+        .btn-concluir { background-color: #5cb85c; }
+        .btn-concluir:hover { background-color: #4cae4c; }
+        .btn-cancelar { background-color: #dc3545; }
+        .btn-cancelar:hover { background-color: #c82333; }
+
+        .botoes-acao-topo { display: flex; gap: 8px; }
+        .exportar-btn { background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .exportar-btn:hover { background: #138496; }
+        .atualizar-btn { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .atualizar-btn:hover { background: #218838; }
+        .voltar { display: inline-block; margin-bottom: 15px; color: #007bff; text-decoration: none; }
+        .voltar:hover { text-decoration: underline; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 450px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-top: 0; color: #333; }
+        .modal-content textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 10px; font-family: Arial; }
+        .modal-botoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        .btn-modal-salvar { background: #5cb85c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-modal-cancelar { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+
+        /* Rodapé fixado embaixo */
+        .footer-sistema {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 14px;
+            border-top: 1px solid #dee2e6;
+            margin-top: auto;
+            width: 100%;
+        }
+        .footer-content p { margin: 4px 0; }
+        .footer-version { font-size: 12px; color: #adb5bd; }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de Login de Acesso Restrito -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h3>Área Restrita - TI</h3>
+            <p style="font-size: 13px; color: #666;">Digite a senha de administrador para acessar o painel:</p>
+            <input type="password" id="senhaAdminInput" placeholder="Senha do painel" onkeypress="verificarEnter(event)">
+            <button onclick="fazerLogin()">Entrar</button>
+        </div>
+    </div>
+
+    <!-- Conteúdo do Painel (Protegido) -->
+    <div id="admin-panel-content">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img src="img/ams.png" alt="Logo da ams" style="max-width: 300px; height: auto;">
+        </div>
+
+        <div class="container">
+            <a href="index.html" class="voltar">&larr; Ir para a Página de Abertura</a>
+            <h2>Painel da TI - Gerenciamento de Chamados</h2>
+
+            <!-- Cards de Indicadores -->
+            <div class="cards-indicadores">
+                <div class="card aberto">
+                    <h4>Abertos</h4>
+                    <span id="contadorAberto">0</span>
+                </div>
+                <div class="card andamento">
+                    <h4>Em Andamento</h4>
+                    <span id="contadorAndamento">0</span>
+                </div>
+                <div class="card fechado">
+                    <h4>Fechados</h4>
+                    <span id="contadorFechado">0</span>
+                </div>
+                <div class="card cancelado">
+                    <h4>Cancelados</h4>
+                    <span id="contadorCancelado">0</span>
+                </div>
+            </div>
+
+            <div class="topo-painel">
+                <div class="filtros">
+                    <button class="btn-filtro ativo" onclick="filtrarStatus('Todos', this)">Todos</button>
+                    <button class="btn-filtro" onclick="filtrarStatus('Aberto', this)">Abertos</button>
+                    <button class="btn-filtro" onclick="filtrarStatus('Em Andamento', this)">Em Andamento</button>
+                    <button class="btn-filtro" onclick="filtrarStatus('Fechado', this)">Fechados</button>
+                    <button class="btn-filtro" onclick="filtrarStatus('Cancelado', this)">Cancelados</button>
+                    
+                    <select id="filtroTecnico" class="select-padrao" onchange="renderizarTabela()">
+                        <option value="Todos">Filtrar por Técnico: Todos</option>
+                    </select>
+                </div>
+                
+                <div class="botoes-acao-topo">
+                    <button class="exportar-btn" onclick="exportarExcel()">Exportar Excel</button>
+                    <button class="atualizar-btn" onclick="carregarChamados()">Atualizar</button>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data/Hora</th>
+                        <th>Solicitante</th>
+                        <th>Setor</th>
+                        <th>Problema</th>
+                        <th>Status</th>
+                        <th>Técnico Responsável</th>
+                        <th>Solução / Observação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaChamados">
+                    <tr>
+                        <td colspan="9" style="text-align: center;">Carregando chamados...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para digitar a solução ao concluir -->
+    <div id="modalSolucao" class="modal">
+        <div class="modal-content">
+            <h3>Concluir Chamado</h3>
+            <p>Descreva brevemente a solução aplicada:</p>
+            <textarea id="textoSolucao" placeholder="Ex: Substituição do cabo de rede e teste realizado com sucesso."></textarea>
+            <div class="modal-botoes">
+                <button class="btn-modal-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-modal-salvar" onclick="salvarConclusao()">Salvar e Concluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script da Aplicação -->
+    <script>
+        const LISTA_TECNICOS = ["Fernando", "Henrique", "Bernardo", "Rogério", "Miriam"];
+
+        let listaGlobalChamados = [];
+        let statusAtualFiltro = 'Todos';
+        let chamadoIdSendoConcluido = null;
+
+        async function fazerLogin() {
+            const senha = document.getElementById('senhaAdminInput').value;
+            if (!senha) {
+                alert('Por favor, digite a senha.');
+                return;
+            }
+
+            try {
+                const resposta = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senha })
+                });
+
+                const resultado = await resposta.json();
+
+                if (resultado.sucesso) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('admin-panel-content').style.display = 'block';
+                    carregarChamados();
+                } else {
+                    alert(resultado.mensagem || 'Senha incorreta!');
+                }
+            } catch (erro) {
+                console.error('Erro ao tentar fazer login:', erro);
+                alert('Erro de conexão com o servidor.');
+            }
+        }
+
+        function verificarEnter(event) {
+            if (event.key === 'Enter') {
+                fazerLogin();
+            }
+        }
+
+        async function carregarChamados() {
+            try {
+                const resposta = await fetch('/api/chamados');
+                listaGlobalChamados = await resposta.json();
+                atualizarContadores();
+                atualizarOpcoesSelectFiltro();
+                renderizarTabela();
+            } catch (erro) {
+                console.error('Erro ao buscar chamados:', erro);
+            }
+        }
+
+        setInterval(() => {
+            const painelVisivel = document.getElementById('admin-panel-content').style.display === 'block';
+            if (painelVisivel) {
+                carregarChamados();
+            }
+        }, 30000);
+
+        function atualizarContadores() {
+            document.getElementById('contadorAberto').innerText = listaGlobalChamados.filter(c => c.status === 'Aberto').length;
+            document.getElementById('contadorAndamento').innerText = listaGlobalChamados.filter(c => c.status === 'Em Andamento').length;
+            document.getElementById('contadorFechado').innerText = listaGlobalChamados.filter(c => c.status === 'Fechado').length;
+            document.getElementById('contadorCancelado').innerText = listaGlobalChamados.filter(c => c.status === 'Cancelado').length;
+        }
+
+        function atualizarOpcoesSelectFiltro() {
+            const select = document.getElementById('filtroTecnico');
+            const valorSelecionadoAtual = select.value;
+
+            let optionsHtml = '<option value="Todos">Filtrar por Técnico: Todos</option>';
+            LISTA_TECNICOS.forEach(tec => {
+                optionsHtml += `<option value="${tec}">${tec}</option>`;
+            });
+            
+            select.innerHTML = optionsHtml;
+            select.value = valorSelecionadoAtual;
+        }
+
+        function filtrarStatus(status, elementoBtn) {
+            statusAtualFiltro = status;
+            document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('ativo'));
+            elementoBtn.classList.add('ativo');
+            renderizarTabela();
+        }
+
+        function renderizarTabela() {
+            const tbody = document.getElementById('tabelaChamados');
+            const tecnicoFiltroSelecionado = document.getElementById('filtroTecnico').value;
+            
+            let filtrados = listaGlobalChamados;
+
+            if (statusAtualFiltro !== 'Todos') {
+                filtrados = filtrados.filter(c => c.status === statusAtualFiltro);
+            }
+
+            if (tecnicoFiltroSelecionado !== 'Todos') {
+                filtrados = filtrados.filter(c => c.tecnico === tecnicoFiltroSelecionado);
+            }
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center;">Nenhum chamado encontrado.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            filtrados.forEach(c => {
+                const dataFormatada = new Date(c.data).toLocaleString('pt-BR');
+                
+                let classeStatus = 'status-aberto';
+                if (c.status === 'Em Andamento') classeStatus = 'status-andamento';
+                if (c.status === 'Fechado') classeStatus = 'status-fechado';
+                if (c.status === 'Cancelado') classeStatus = 'status-cancelado';
+
+                let tecnicoAtual = c.tecnico && c.tecnico !== 'Não atribuído' ? c.tecnico : '';
+                let selectTecnicoHtml = `<select class="select-padrao" id="select-tec-${c.id}" onchange="atribuirTecnico(${c.id})">`;
+                selectTecnicoHtml += `<option value="">Selecione...</option>`;
+                
+                LISTA_TECNICOS.forEach(tec => {
+                    let selecionado = (tec === tecnicoAtual) ? 'selected' : '';
+                    selectTecnicoHtml += `<option value="${tec}" ${selecionado}>${tec}</option>`;
+                });
+                selectTecnicoHtml += `</select>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>#${c.id}</td>
+                    <td>${dataFormatada}</td>
+                    <td>${c.nome}</td>
+                    <td>${c.setor}</td>
+                    <td>${c.problema}</td>
+                    <td><span class="${classeStatus}">${c.status}</span></td>
+                    <td>${selectTecnicoHtml}</td>
+                    <td>${c.solucao || '-'}</td>
+                    <td>
+                        <button class="btn-acao btn-atender" onclick="mudarStatusDireto(${c.id}, 'Em Andamento')">Andamento</button>
+                        <button class="btn-acao btn-concluir" onclick="abrirModalConclusao(${c.id})">Concluir</button>
+                        <button class="btn-acao btn-cancelar" onclick="cancelarChamado(${c.id})">Cancelar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function atribuirTecnico(id) {
+            const selectEl = document.getElementById(`select-tec-${id}`);
+            const tecnicoEscolhido = selectEl.value;
+            if (!tecnicoEscolhido) return;
+
+            const chamado = listaGlobalChamados.find(c => c.id === id);
+            await atualizarServidor(id, chamado.status, tecnicoEscolhido, chamado.solucao);
+        }
+
+        async function mudarStatusDireto(id, novoStatus) {
+            const selectEl = document.getElementById(`select-tec-${id}`);
+            const tecnicoEscolhido = selectEl.value;
+
+            if (!tecnicoEscolhido) {
+                alert('Por favor, selecione o Técnico Responsável antes de alterar o status.');
+                return;
+            }
+
+            const chamado = listaGlobalChamados.find(c => c.id === id);
+            await atualizarServidor(id, novoStatus, tecnicoEscolhido, chamado.solucao);
+        }
+
+        function abrirModalConclusao(id) {
+            const selectEl = document.getElementById(`select-tec-${id}`);
+            const tecnicoEscolhido = selectEl.value;
+
+            if (!tecnicoEscolhido) {
+                alert('Por favor, selecione o Técnico Responsável antes de concluir o chamado.');
+                return;
+            }
+
+            chamadoIdSendoConcluido = id;
+            document.getElementById('textoSolucao').value = '';
+            document.getElementById('modalSolucao').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalSolucao').style.display = 'none';
+            chamadoIdSendoConcluido = null;
+        }
+
+        async function salvarConclusao() {
+            const solucaoTexto = document.getElementById('textoSolucao').value.trim();
+            if (!solucaoTexto) {
+                alert('Por favor, digite a solução aplicada.');
+                return;
+            }
+
+            if (!chamadoIdSendoConcluido) {
+                alert('Erro: ID do chamado não identificado.');
+                fecharModal();
+                return;
+            }
+
+            const selectEl = document.getElementById(`select-tec-${chamadoIdSendoConcluido}`);
+            const tecnicoEscolhido = selectEl ? selectEl.value : 'Não atribuído';
+
+            const idParaAtualizar = chamadoIdSendoConcluido;
+            fecharModal();
+
+            await atualizarServidor(idParaAtualizar, 'Fechado', tecnicoEscolhido, solucaoTexto);
+        }
+
+        async function cancelarChamado(id) {
+            if (!confirm('Tem certeza que deseja cancelar este chamado?')) return;
+
+            const selectEl = document.getElementById(`select-tec-${id}`);
+            const tecnicoEscolhido = selectEl.value || 'Não atribuído';
+            const chamado = listaGlobalChamados.find(c => c.id === id);
+
+            await atualizarServidor(id, 'Cancelado', tecnicoEscolhido, chamado.solucao);
+        }
+
+        async function atualizarServidor(id, status, tecnico, solucao) {
+            try {
+                const resposta = await fetch(`/api/chamados/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: status, tecnico: tecnico, solucao: solucao })
+                });
+
+                if (resposta.ok) {
+                    carregarChamados();
+                } else {
+                    alert('Erro ao atualizar o chamado.');
+                }
+            } catch (erro) {
+                console.error('Erro:', erro);
+                alert('Erro de conexão ao atualizar.');
+            }
+        }
+
+        function exportarExcel() {
+            if (listaGlobalChamados.length === 0) {
+                alert('Não há chamados para exportar.');
+                return;
+            }
+
+            const dadosParaPlanilha = listaGlobalChamados.map(c => ({
+                ID: c.id,
+                'Data/Hora': new Date(c.data).toLocaleString('pt-BR'),
+                Solicitante: c.nome,
+                Setor: c.setor,
+                Problema: c.problema,
+                Status: c.status,
+                'Técnico Responsável': c.tecnico || 'Não atribuído',
+                'Solução Aplicada': c.solucao || ''
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dadosParaPlanilha);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Chamados_TI");
+            XLSX.writeFile(workbook, `relatorio_chamados_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+    </script>
+
+    <!-- Rodapé do Sistema -->
+    <footer class="footer-sistema">
+        <div class="footer-content">
+            <p>Desenvolvido por <strong>Fernando Pereira Nilsen</strong></p>
+            <p class="footer-version">Versão 1.0.0 &bull; 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>
