@@ -14,7 +14,7 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
         
-    /* Tela de Login */
+        /* Tela de Login */
         #login-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -126,8 +126,8 @@
 
     <!-- Conteúdo do Painel (Protegido) -->
     <div id="admin-panel-content">
-        <div style="text-align: center; margin-bottom: 15px;">
-            <img src="img/ams.png" alt="Logo da ams" style="max-width: 300px; height: auto;">
+        <div style="text-align: center; margin-bottom: 15px; background: transparent; box-shadow: none; border: none;">
+            <img src="img/ams.png" alt="Logo da ams" style="max-width: 250px; height: auto; background: transparent; border: none; box-shadow: none; display: block; margin: 0 auto;">
         </div>
 
         <div class="container">
@@ -211,38 +211,31 @@
 
     <!-- Script da Aplicação -->
     <script>
+        // COLE A MESMA URL DO SEU WEB APP DO GOOGLE APPS SCRIPT ABAIXO:
+        const URL_API_GOOGLE = "SUA_URL_DO_WEB_APP_AQUI";
+        
+        // Defina aqui a senha de administrador desejada:
+        const SENHA_ADMIN = "123456"; 
+
         const LISTA_TECNICOS = ["Fernando", "Henrique", "Bernardo", "Rogério", "Miriam"];
 
         let listaGlobalChamados = [];
         let statusAtualFiltro = 'Todos';
         let chamadoIdSendoConcluido = null;
 
-        async function fazerLogin() {
+        function fazerLogin() {
             const senha = document.getElementById('senhaAdminInput').value;
             if (!senha) {
                 alert('Por favor, digite a senha.');
                 return;
             }
 
-            try {
-                const resposta = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ senha })
-                });
-
-                const resultado = await resposta.json();
-
-                if (resultado.sucesso) {
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('admin-panel-content').style.display = 'block';
-                    carregarChamados();
-                } else {
-                    alert(resultado.mensagem || 'Senha incorreta!');
-                }
-            } catch (erro) {
-                console.error('Erro ao tentar fazer login:', erro);
-                alert('Erro de conexão com o servidor.');
+            if (senha === SENHA_ADMIN) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('admin-panel-content').style.display = 'block';
+                carregarChamados();
+            } else {
+                alert('Senha incorreta!');
             }
         }
 
@@ -254,7 +247,7 @@
 
         async function carregarChamados() {
             try {
-                const resposta = await fetch('/api/chamados');
+                const resposta = await fetch(URL_API_GOOGLE);
                 listaGlobalChamados = await resposta.json();
                 atualizarContadores();
                 atualizarOpcoesSelectFiltro();
@@ -319,7 +312,7 @@
 
             tbody.innerHTML = '';
             filtrados.forEach(c => {
-                const dataFormatada = new Date(c.data).toLocaleString('pt-BR');
+                const dataFormatada = c.data ? new Date(c.data).toLocaleString('pt-BR') : '-';
                 
                 let classeStatus = 'status-aberto';
                 if (c.status === 'Em Andamento') classeStatus = 'status-andamento';
@@ -431,10 +424,17 @@
 
         async function atualizarServidor(id, status, tecnico, solucao) {
             try {
-                const resposta = await fetch(`/api/chamados/${id}/status`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: status, tecnico: tecnico, solucao: solucao })
+                // Envia a atualização via POST para o Google Apps Script
+                const dadosAtualizacao = {
+                    id: id,
+                    status: status,
+                    tecnico: tecnico,
+                    solucao: solucao
+                };
+
+                const resposta = await fetch(URL_API_GOOGLE, {
+                    method: 'POST',
+                    body: JSON.stringify(dadosAtualizacao)
                 });
 
                 if (resposta.ok) {
@@ -456,7 +456,7 @@
 
             const dadosParaPlanilha = listaGlobalChamados.map(c => ({
                 ID: c.id,
-                'Data/Hora': new Date(c.data).toLocaleString('pt-BR'),
+                'Data/Hora': c.data ? new Date(c.data).toLocaleString('pt-BR') : '',
                 Solicitante: c.nome,
                 Setor: c.setor,
                 Problema: c.problema,
