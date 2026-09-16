@@ -141,12 +141,18 @@
         async function carregarEstatisticas() {
             try {
                 const resposta = await fetch(URL_API_GOOGLE);
-                const stats = await resposta.json();
+                const chamados = await resposta.json();
                 
-                document.getElementById('cardAberto').innerText = stats.Aberto || 0;
-                document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
-                document.getElementById('cardFechado').innerText = stats.Fechado || 0;
-                document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
+                // Conta os status com base na lista retornada
+                let abertos = chamados.filter(c => c.status === 'Aberto').length;
+                let emAndamento = chamados.filter(c => c.status === 'Em Andamento').length;
+                let fechados = chamados.filter(c => c.status === 'Fechado').length;
+                let cancelados = chamados.filter(c => c.status === 'Cancelado').length;
+
+                document.getElementById('cardAberto').innerText = abertos;
+                document.getElementById('cardAndamento').innerText = emAndamento;
+                document.getElementById('cardFechado').innerText = fechados;
+                document.getElementById('cardCancelado').innerText = cancelados;
             } catch (erro) {
                 console.error('Erro ao carregar estatísticas:', erro);
             }
