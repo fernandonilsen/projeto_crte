@@ -131,27 +131,30 @@
     </div>
 
     <script>
-        // Função para carregar os contadores chamando o back-end do Apps Script
-        function carregarEstatisticas() {
-            google.script.run
-                .withSuccessHandler(function(stats) {
-                    document.getElementById('cardAberto').innerText = stats.Aberto || 0;
-                    document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
-                    document.getElementById('cardFechado').innerText = stats.Fechado || 0;
-                    document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
-                })
-                .withFailureHandler(function(erro) {
-                    console.error('Erro ao carregar estatísticas:', erro);
-                })
-                .obterEstatisticas(); // Chama a função que criaremos no Code.gs
+        // COLE AQUI A SUA URL DO GOOGLE APPS SCRIPT
+        const URL_API_GOOGLE = "SUA_URL_DO_WEB_APP_AQUI";
+
+        // Função para carregar os contadores da planilha via API do Google
+        async function carregarEstatisticas() {
+            try {
+                const resposta = await fetch(URL_API_GOOGLE);
+                const stats = await resposta.json();
+                
+                document.getElementById('cardAberto').innerText = stats.Aberto || 0;
+                document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
+                document.getElementById('cardFechado').innerText = stats.Fechado || 0;
+                document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
+            } catch (erro) {
+                console.error('Erro ao carregar estatísticas:', erro);
+            }
         }
 
         // Carrega ao abrir a página e atualiza a cada 30 segundos
         carregarEstatisticas();
         setInterval(carregarEstatisticas, 30000);
 
-        // Envio do formulário de chamado
-        document.getElementById('formChamado').addEventListener('submit', function(e) {
+        // Envio do formulário de chamado via POST para o Google Apps Script
+        document.getElementById('formChamado').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const dados = {
@@ -160,26 +163,35 @@
                 problema: document.getElementById('problema').value
             };
 
-            // Desativa o botão temporariamente para evitar duplo clique
             const botao = document.querySelector('button[type="submit"]');
             botao.innerText = "Enviando...";
             botao.disabled = true;
 
-            google.script.run
-                .withSuccessHandler(function(resposta) {
-                    alert('Chamado aberto com sucesso! ID: ' + resposta);
+            try {
+                // O Google Apps Script exige que requisições POST de domínios externos 
+                // passem sem o 'Content-Type: application/json' no header para evitar bloqueios de CORS complexos,
+                // enviando o corpo diretamente como string JSON.
+                const resposta = await fetch(URL_API_GOOGLE, {
+                    method: 'POST',
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resultado.sucesso) {
+                    alert('Chamado aberto com sucesso! ID: ' + resultado.id);
                     document.getElementById('formChamado').reset();
-                    botao.innerText = "Enviar Chamado";
-                    botao.disabled = false;
                     carregarEstatisticas(); // Atualiza os cards na hora
-                })
-                .withFailureHandler(function(erro) {
-                    console.error('Erro:', erro);
-                    alert('Erro ao abrir o chamado: ' + erro.message);
-                    botao.innerText = "Enviar Chamado";
-                    botao.disabled = false;
-                })
-                .salvarChamadoNoGoogleSheets(dados); // Chama a função no Code.gs
+                } else {
+                    alert('Erro ao abrir o chamado: ' + resultado.erro);
+                }
+            } catch (erro) {
+                console.error('Erro:', erro);
+                alert('Erro de conexão com o servidor do Google.');
+            } finally {
+                botao.innerText = "Enviar Chamado";
+                botao.disabled = false;
+            }
         });
     </script>
 
