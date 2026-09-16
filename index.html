@@ -131,19 +131,19 @@
     </div>
 
     <script>
-        // Função para carregar os contadores na tela inicial
-        async function carregarEstatisticas() {
-            try {
-                const resposta = await fetch('/api/estatisticas');
-                const stats = await resposta.json();
-                
-                document.getElementById('cardAberto').innerText = stats.Aberto || 0;
-                document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
-                document.getElementById('cardFechado').innerText = stats.Fechado || 0;
-                document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
-            } catch (erro) {
-                console.error('Erro ao carregar estatísticas:', erro);
-            }
+        // Função para carregar os contadores chamando o back-end do Apps Script
+        function carregarEstatisticas() {
+            google.script.run
+                .withSuccessHandler(function(stats) {
+                    document.getElementById('cardAberto').innerText = stats.Aberto || 0;
+                    document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
+                    document.getElementById('cardFechado').innerText = stats.Fechado || 0;
+                    document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
+                })
+                .withFailureHandler(function(erro) {
+                    console.error('Erro ao carregar estatísticas:', erro);
+                })
+                .obterEstatisticas(); // Chama a função que criaremos no Code.gs
         }
 
         // Carrega ao abrir a página e atualiza a cada 30 segundos
@@ -151,7 +151,7 @@
         setInterval(carregarEstatisticas, 30000);
 
         // Envio do formulário de chamado
-        document.getElementById('formChamado').addEventListener('submit', async function(e) {
+        document.getElementById('formChamado').addEventListener('submit', function(e) {
             e.preventDefault();
 
             const dados = {
@@ -160,24 +160,26 @@
                 problema: document.getElementById('problema').value
             };
 
-            try {
-                const resposta = await fetch('/api/chamados', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dados)
-                });
+            // Desativa o botão temporariamente para evitar duplo clique
+            const botao = document.querySelector('button[type="submit"]');
+            botao.innerText = "Enviando...";
+            botao.disabled = true;
 
-                if (resposta.ok) {
-                    alert('Chamado aberto com sucesso!');
+            google.script.run
+                .withSuccessHandler(function(resposta) {
+                    alert('Chamado aberto com sucesso! ID: ' + resposta);
                     document.getElementById('formChamado').reset();
+                    botao.innerText = "Enviar Chamado";
+                    botao.disabled = false;
                     carregarEstatisticas(); // Atualiza os cards na hora
-                } else {
-                    alert('Erro ao abrir o chamado.');
-                }
-            } catch (erro) {
-                console.error('Erro:', erro);
-                alert('Erro de conexão com o servidor.');
-            }
+                })
+                .withFailureHandler(function(erro) {
+                    console.error('Erro:', erro);
+                    alert('Erro ao abrir o chamado: ' + erro.message);
+                    botao.innerText = "Enviar Chamado";
+                    botao.disabled = false;
+                })
+                .salvarChamadoNoGoogleSheets(dados); // Chama a função no Code.gs
         });
     </script>
 
