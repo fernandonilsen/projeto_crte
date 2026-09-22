@@ -1,0 +1,433 @@
+/* ==========================================
+   1. VARIÁVEIS DE CORES (TEMAS CLARO E ESCURO)
+   ========================================== */
+:root {
+    --bg-color: #f4f4f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-muted: #666666;
+    --border-color: #cccccc;
+    --table-header-bg: #007bff;
+    --table-header-color: #ffffff;
+    --table-row-even: #f9f9f9;
+    --input-bg: #ffffff;
+}
+
+body.dark {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --text-muted: #b0b0b0;
+    --border-color: #333333;
+    --table-header-bg: #1f1f1f;
+    --table-header-color: #ffffff;
+    --table-row-even: #252525;
+    --input-bg: #2b2b2b;
+}
+
+/* ==========================================
+   2. ESTILOS GLOBAIS
+   ========================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 1350px;
+    margin: 0 auto;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    flex: 1;
+    width: 100%;
+}
+
+h2 {
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ==========================================
+   3. CARDS DE INDICADORES
+   ========================================== */
+.cards-indicadores {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    min-width: 150px;
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 5px solid #007bff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card.aberto { border-left-color: #c21813; }
+.card.andamento { border-left-color: #e0c009; }
+.card.fechado { border-left-color: #28a745; }
+.card.cancelado { border-left-color: #6c757d; }
+
+.card h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.card span {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text-color);
+    display: block;
+    margin-top: 5px;
+}
+
+/* ==========================================
+   4. FORMULÁRIOS E INPUTS
+   ========================================== */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.painel-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.painel-link:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   5. TELA DE LOGIN
+   ========================================== */
+#login-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.login-card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+}
+
+.login-card h3 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+#admin-panel-content {
+    display: none;
+    flex: 1;
+}
+
+/* ==========================================
+   6. PAINEL E TABELA DE CHAMADOS
+   ========================================== */
+.topo-painel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filtros {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-filtro {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-color);
+    width: auto;
+}
+
+.btn-filtro.ativo {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+select.select-padrao {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    width: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 13px;
+}
+
+th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-color);
+}
+
+tr:nth-child(even) {
+    background-color: var(--table-row-even);
+}
+
+/* Status */
+.status-aberto { color: #c21813; font-weight: bold; }
+.status-andamento { color: #e0c009; font-weight: bold; }
+.status-fechado { color: #28a745; font-weight: bold; }
+.status-cancelado { color: #6c757d; font-weight: bold; text-decoration: line-through; }
+
+/* Botões de Ação na Tabela */
+.btn-acao {
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 11px;
+    margin-right: 3px;
+    width: auto;
+}
+.btn-atender { background-color: #e0c009; }
+.btn-atender:hover { background-color: #ffd900; }
+.btn-concluir { background-color: #28a745; }
+.btn-concluir:hover { background-color: #07f03d; }
+.btn-cancelar { background-color: #c21813; }
+.btn-cancelar:hover { background-color: #ee0b04; }
+
+.botoes-acao-topo { display: flex; gap: 8px; }
+
+.exportar-btn {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: auto;
+}
+.exportar-btn:hover { background: #06c5e2; }
+
+.atualizar-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: auto;
+}
+.atualizar-btn:hover { background: #17e447; }
+
+.voltar {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #007bff;
+    text-decoration: none;
+}
+.voltar:hover { text-decoration: underline; }
+
+/* ==========================================
+   7. MODAL
+   ========================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 25px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+.modal-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-modal-salvar {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+}
+
+.btn-modal-cancelar {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+}
+
+/* ==========================================
+   8. RODAPÉ E BOTÃO DARK MODE FLUTUANTE
+   ========================================== */
+.footer-sistema {
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 15px 0;
+    font-size: 14px;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+    width: 100%;
+}
+
+.footer-content p {
+    margin: 4px 0;
+}
+
+.footer-version {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+#btn-dark-mode {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+#btn-dark-mode:hover {
+    transform: scale(1.1);
+}
