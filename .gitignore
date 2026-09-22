@@ -1,0 +1,3 @@
+node_modules/
+chamados.db
+*.log

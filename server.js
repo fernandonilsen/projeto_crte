@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3111;
 
 // Configurar o banco de dados SQLite local
 const db = new sqlite3.Database('./chamados.db', (err) => {

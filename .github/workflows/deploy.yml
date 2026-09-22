@@ -1,0 +1,59 @@
+name: Deploy CRTE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependências (validação)
+        run: npm ci
+
+      # Só o essencial — sem node_modules. As dependências são instaladas no próprio
+      # servidor (manualmente ou via botão do painel), não pela pipeline.
+      # Nunca vai o chamados.db (dado gerado em produção, não pode ser sobrescrito).
+      - name: Preparar pacote de deploy
+        run: |
+          mkdir -p deploy
+          cp -r public deploy/public
+          cp server.js package.json package-lock.json deploy/
+
+      - name: Instalar lftp
+        run: sudo apt-get update -y && sudo apt-get install -y lftp
+
+      # Sem --delete: nunca apaga o que já existe no servidor (chamados.db, node_modules/).
+      - name: Deploy via FTP (lftp)
+        env:
+          FTP_HOST: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+        run: |
+          lftp -p "$FTP_PORT" -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_HOST" <<EOF
+          set ftp:ssl-allow no
+          set net:max-retries 5
+          set net:reconnect-interval-base 5
+          set net:timeout 30
+          mirror -R --no-perms --verbose --parallel=1 ./deploy/ "$REMOTE_DIR/"
+          bye
+          EOF
+
+      - name: Lembrete
+        run: |
+          echo "Arquivos enviados (sem node_modules, sem chamados.db)."
+          echo "Na VPS: entre por SSH, rode 'npm install --omit=dev' na pasta do site e reinicie o processo Node (pm2/systemd)."
+          echo "Lembrete: se ainda não existir, configure o processo do server.js (pm2 start server.js ou serviço systemd) e o Nginx apontando pra ele."
