@@ -43,6 +43,13 @@ jobs:
           FTP_PORT: ${{ secrets.FTP_PORT }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
         run: |
+          # Remove quebras de linha/espaços acidentais que os secrets possam carregar
+          FTP_HOST="$(printf '%s' "$FTP_HOST" | tr -d '\r\n')"
+          FTP_USERNAME="$(printf '%s' "$FTP_USERNAME" | tr -d '\r\n')"
+          FTP_PASSWORD="$(printf '%s' "$FTP_PASSWORD" | tr -d '\r\n')"
+          FTP_PORT="$(printf '%s' "$FTP_PORT" | tr -d '\r\n')"
+          REMOTE_DIR="$(printf '%s' "$REMOTE_DIR" | tr -d '\r\n')"
+
           lftp -p "$FTP_PORT" -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_HOST" <<EOF
           set ftp:ssl-allow no
           set net:max-retries 5
