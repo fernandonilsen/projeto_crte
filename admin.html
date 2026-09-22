@@ -8,110 +8,13 @@
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="img/Hopstarter-Halloween-Avatar-Dave.ico">
 
+    <!-- Arquivo CSS Externo -->
+    <link rel="stylesheet" href="style.css">
+
     <!-- Biblioteca SheetJS para exportar Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        /* Tela de Login */
-        #login-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .login-card {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .login-card h3 { margin-top: 0; color: #333; }
-        .login-card input { width: 100%; padding: 10px; margin-top: 15px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        .login-card button { width: 100%; padding: 10px; margin-top: 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        .login-card button:hover { background-color: #0056b3; }
-
-        /* Painel protegido */
-        #admin-panel-content { display: none; flex: 1; }
-
-        .container { max-width: 1350px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h2 { color: #333; text-align: center; margin-bottom: 20px; }
-        
-        /* Cards de Indicadores */
-        .cards-indicadores { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .card { flex: 1; min-width: 150px; background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
-        .card.aberto { border-left-color: #d9534f; }
-        .card.andamento { border-left-color: #f0ad4e; }
-        .card.fechado { border-left-color: #5cb85c; }
-        .card.cancelado { border-left-color: #6c757d; }
-        .card h4 { margin: 0; font-size: 13px; color: #666; }
-        .card span { font-size: 22px; font-weight: bold; color: #333; display: block; margin-top: 5px; }
-
-        .topo-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .btn-filtro { padding: 8px 12px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; color: #555; }
-        .btn-filtro.ativo { background: #007bff; color: white; border-color: #007bff; }
-        
-        select.select-padrao { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; background: #fff; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 13px; }
-        th { background-color: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        
-        /* Cores dos Status */
-        .status-aberto { color: #d9534f; font-weight: bold; }
-        .status-andamento { color: #f0ad4e; font-weight: bold; }
-        .status-fechado { color: #5cb85c; font-weight: bold; }
-        .status-cancelado { color: #6c757d; font-weight: bold; text-decoration: line-through; }
-
-        /* Botões de Ação */
-        .btn-acao { padding: 6px 8px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 11px; margin-right: 3px; }
-        .btn-atender { background-color: #f0ad4e; }
-        .btn-atender:hover { background-color: #ec971f; }
-        .btn-concluir { background-color: #5cb85c; }
-        .btn-concluir:hover { background-color: #4cae4c; }
-        .btn-cancelar { background-color: #dc3545; }
-        .btn-cancelar:hover { background-color: #c82333; }
-
-        .botoes-acao-topo { display: flex; gap: 8px; }
-        .exportar-btn { background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .exportar-btn:hover { background: #138496; }
-        .atualizar-btn { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .atualizar-btn:hover { background: #218838; }
-        .voltar { display: inline-block; margin-bottom: 15px; color: #007bff; text-decoration: none; }
-        .voltar:hover { text-decoration: underline; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 450px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .modal-content h3 { margin-top: 0; color: #333; }
-        .modal-content textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 10px; font-family: Arial; }
-        .modal-botoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
-        .btn-modal-salvar { background: #5cb85c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .btn-modal-cancelar { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-
-        /* Rodapé fixado embaixo */
-        .footer-sistema {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            text-align: center;
-            padding: 15px 0;
-            font-size: 14px;
-            border-top: 1px solid #dee2e6;
-            margin-top: auto;
-            width: 100%;
-        }
-        .footer-content p { margin: 4px 0; }
-        .footer-version { font-size: 12px; color: #adb5bd; }
-    </style>
 </head>
+
 <body>
 
     <!-- Tela de Login de Acesso Restrito -->
@@ -125,9 +28,9 @@
     </div>
 
     <!-- Conteúdo do Painel (Protegido) -->
-    <div id="admin-panel-content">
-        <div style="text-align: center; margin-bottom: 15px; background: transparent; box-shadow: none; border: none;">
-            <img src="img/logo_nre_amsul_440x78.png" alt="Logo da ams" style="max-width: 250px; height: auto; background: transparent; border: none; box-shadow: none; display: block; margin: 0 auto;">
+    <div id="admin-panel-content" style="display: none;">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img src="img/ams.png" alt="Logo da ams" style="max-width: 300px; height: auto;">
         </div>
 
         <div class="container">
@@ -211,31 +114,38 @@
 
     <!-- Script da Aplicação -->
     <script>
-        // COLE A MESMA URL DO SEU WEB APP DO GOOGLE APPS SCRIPT ABAIXO:
-        const URL_API_GOOGLE = "https://script.google.com/macros/s/AKfycbxSG9fhSXVvH9QDItWgIk3rKk7kpxNwpeC6FrLbdRdeYjpi9_4G00Dj_UCL127mDQQeNg/exec";
-        
-        // Defina aqui a senha de administrador desejada:
-        const SENHA_ADMIN = "seed@parana"; 
-
         const LISTA_TECNICOS = ["Fernando", "Henrique", "Bernardo", "Rogério", "Miriam"];
 
         let listaGlobalChamados = [];
         let statusAtualFiltro = 'Todos';
         let chamadoIdSendoConcluido = null;
 
-        function fazerLogin() {
+        async function fazerLogin() {
             const senha = document.getElementById('senhaAdminInput').value;
             if (!senha) {
                 alert('Por favor, digite a senha.');
                 return;
             }
 
-            if (senha === SENHA_ADMIN) {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('admin-panel-content').style.display = 'block';
-                carregarChamados();
-            } else {
-                alert('Senha incorreta!');
+            try {
+                const resposta = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senha })
+                });
+
+                const resultado = await resposta.json();
+
+                if (resultado.sucesso) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('admin-panel-content').style.display = 'block';
+                    carregarChamados();
+                } else {
+                    alert(resultado.mensagem || 'Senha incorreta!');
+                }
+            } catch (erro) {
+                console.error('Erro ao tentar fazer login:', erro);
+                alert('Erro de conexão com o servidor.');
             }
         }
 
@@ -247,7 +157,7 @@
 
         async function carregarChamados() {
             try {
-                const resposta = await fetch(URL_API_GOOGLE);
+                const resposta = await fetch('/api/chamados');
                 listaGlobalChamados = await resposta.json();
                 atualizarContadores();
                 atualizarOpcoesSelectFiltro();
@@ -312,7 +222,7 @@
 
             tbody.innerHTML = '';
             filtrados.forEach(c => {
-                const dataFormatada = c.data ? new Date(c.data).toLocaleString('pt-BR') : '-';
+                const dataFormatada = new Date(c.data).toLocaleString('pt-BR');
                 
                 let classeStatus = 'status-aberto';
                 if (c.status === 'Em Andamento') classeStatus = 'status-andamento';
@@ -424,17 +334,10 @@
 
         async function atualizarServidor(id, status, tecnico, solucao) {
             try {
-                // Envia a atualização via POST para o Google Apps Script
-                const dadosAtualizacao = {
-                    id: id,
-                    status: status,
-                    tecnico: tecnico,
-                    solucao: solucao
-                };
-
-                const resposta = await fetch(URL_API_GOOGLE, {
-                    method: 'POST',
-                    body: JSON.stringify(dadosAtualizacao)
+                const resposta = await fetch(`/api/chamados/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: status, tecnico: tecnico, solucao: solucao })
                 });
 
                 if (resposta.ok) {
@@ -456,7 +359,7 @@
 
             const dadosParaPlanilha = listaGlobalChamados.map(c => ({
                 ID: c.id,
-                'Data/Hora': c.data ? new Date(c.data).toLocaleString('pt-BR') : '',
+                'Data/Hora': new Date(c.data).toLocaleString('pt-BR'),
                 Solicitante: c.nome,
                 Setor: c.setor,
                 Problema: c.problema,
@@ -476,9 +379,35 @@
     <footer class="footer-sistema">
         <div class="footer-content">
             <p>Desenvolvido por <strong>Fernando Pereira Nilsen</strong></p>
-            <p class="footer-version">Versão 1.0.0 &bull; 2026</p>
+            <p class="footer-version">Versão 1.0.1 &bull; 2026</p>
         </div>
     </footer>
 
+    <!-- Botão flutuante para alternar o Dark Mode -->
+    <button id="btn-dark-mode" onclick="alternarDarkMode()" title="Alternar Modo Escuro">🌙</button>
+
+    <script>
+        // Função para alternar entre claro e escuro
+        function alternarDarkMode() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            
+            // Salva a preferência no navegador do usuário
+            localStorage.setItem('darkMode', isDark);
+            
+            // Muda o ícone do botão
+            const btn = document.getElementById('btn-dark-mode');
+            btn.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // Ao carregar a página, verifica se o usuário já havia ativado o escuro antes
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark');
+                const btn = document.getElementById('btn-dark-mode');
+                if (btn) btn.textContent = '☀️';
+            }
+        });
+    </script>
 </body>
 </html>
