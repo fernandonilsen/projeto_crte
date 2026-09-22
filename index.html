@@ -1,68 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
-    <!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="img/Iconarchive-Robot-Avatar-Yellow-5-Minion.ico">
-
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abertura de Chamados - TI</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h2 { color: #333; text-align: center; margin-bottom: 20px; }
-        
-    /* Cards de indicadores */
-        .cards-indicadores { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .card { flex: 1; min-width: 120px; background: #f8f9fa; padding: 12px; border-radius: 6px; border-left: 4px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
-        .card.aberto { border-left-color: #d9534f; }
-        .card.andamento { border-left-color: #f0ad4e; }
-        .card.fechado { border-left-color: #5cb85c; }
-        .card.cancelado { border-left-color: #6c757d; }
-        .card h4 { margin: 0; font-size: 12px; color: #666; }
-        .card span { font-size: 18px; font-weight: bold; color: #333; display: block; margin-top: 4px; }
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/png" href="img/Hopstarter-Halloween-Avatar-Dave.ico">
 
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 100px; resize: vertical; }
-        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        .painel-link { display: block; text-align: center; margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
-        .painel-link:hover { text-decoration: underline; }
-
-.footer-sistema {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    text-align: center;
-    padding: 15px 0;
-    font-size: 14px;
-    border-top: 1px solid #dee2e6;
-    margin-top: 40px;
-    width: 100%;
-}
-
-.footer-content p {
-    margin: 4px 0;
-}
-
-.footer-version {
-    font-size: 12px;
-    color: #adb5bd;
-}
-
-    </style>
+    <!-- Arquivo CSS Externo (Movido corretamente para dentro do Head) -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <div style="text-align: center; margin-bottom: 20px; background: transparent; box-shadow: none; border: none;">
-    <img src="img/logo_nre_amsul_440x78.png" alt="Logo da empresa" style="max-width: 250px; height: auto; background: transparent; border: none; box-shadow: none; display: block; margin: 0 auto;">
-</div>
-</div>
-    </div>
 
-    <!-- Cards de Estatísticas para o Usuário -->
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img src="img/ams.png" alt="Logo da ams" style="max-width: 300px; height: auto;">
+        </div>
+
+        <!-- Cards de Estatísticas para o Usuário -->
         <div class="cards-indicadores">
             <div class="card aberto">
                 <h4>Abertos</h4>
@@ -82,7 +38,7 @@
             </div>
         </div>
 
-    <h2>Abrir Novo Chamado de TI</h2>
+        <h2>Abrir Novo Chamado de TI</h2>
 
         <!-- Formulário de Abertura -->
         <form id="formChamado">
@@ -115,7 +71,7 @@
                     <option value="CPADS">CPADS</option>
                     <option value="EDH">EDH</option>
                     <option value="MÃOS AMIGAS">MÃOS AMIGAS</option>
-                    <option value="EDIFICAÇÕES">EDIFICAÇõES</option>
+                    <option value="EDIFICAÇÕES">EDIFICAÇÕES</option>
                     <option value="CRTE COMUNICAÇÃO">CRTE COMUNICAÇÃO</option>
                     <option value="CRTE PEDAGÓGICO">CRTE PEDAGÓGICO</option>
                     <option value="CHEFIA">CHEFIA</option>
@@ -133,26 +89,18 @@
         <a href="admin.html" class="painel-link">Acessar Painel da TI (Restrito)</a>
     </div>
 
+    <!-- Script Principal do Formulário e Estatísticas -->
     <script>
-        // COLE AQUI A SUA URL DO GOOGLE APPS SCRIPT
-        const URL_API_GOOGLE = "https://script.google.com/macros/s/AKfycbxSG9fhSXVvH9QDItWgIk3rKk7kpxNwpeC6FrLbdRdeYjpi9_4G00Dj_UCL127mDQQeNg/exec";
-
-        // Função para carregar os contadores da planilha via API do Google
+        // Função para carregar os contadores na tela inicial
         async function carregarEstatisticas() {
             try {
-                const resposta = await fetch(URL_API_GOOGLE);
-                const chamados = await resposta.json();
+                const resposta = await fetch('/api/estatisticas');
+                const stats = await resposta.json();
                 
-                // Conta os status com base na lista retornada
-                let abertos = chamados.filter(c => c.status === 'Aberto').length;
-                let emAndamento = chamados.filter(c => c.status === 'Em Andamento').length;
-                let fechados = chamados.filter(c => c.status === 'Fechado').length;
-                let cancelados = chamados.filter(c => c.status === 'Cancelado').length;
-
-                document.getElementById('cardAberto').innerText = abertos;
-                document.getElementById('cardAndamento').innerText = emAndamento;
-                document.getElementById('cardFechado').innerText = fechados;
-                document.getElementById('cardCancelado').innerText = cancelados;
+                document.getElementById('cardAberto').innerText = stats.Aberto || 0;
+                document.getElementById('cardAndamento').innerText = stats['Em Andamento'] || 0;
+                document.getElementById('cardFechado').innerText = stats.Fechado || 0;
+                document.getElementById('cardCancelado').innerText = stats.Cancelado || 0;
             } catch (erro) {
                 console.error('Erro ao carregar estatísticas:', erro);
             }
@@ -162,7 +110,7 @@
         carregarEstatisticas();
         setInterval(carregarEstatisticas, 30000);
 
-        // Envio do formulário de chamado via POST para o Google Apps Script
+        // Envio do formulário de chamado
         document.getElementById('formChamado').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -172,45 +120,61 @@
                 problema: document.getElementById('problema').value
             };
 
-            const botao = document.querySelector('button[type="submit"]');
-            botao.innerText = "Enviando...";
-            botao.disabled = true;
-
             try {
-                // O Google Apps Script exige que requisições POST de domínios externos 
-                // passem sem o 'Content-Type: application/json' no header para evitar bloqueios de CORS complexos,
-                // enviando o corpo diretamente como string JSON.
-                const resposta = await fetch(URL_API_GOOGLE, {
+                const resposta = await fetch('/api/chamados', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
                 });
 
-                const resultado = await resposta.json();
-
-                if (resultado.sucesso) {
-                    alert('Chamado aberto com sucesso! ID: ' + resultado.id);
+                if (resposta.ok) {
+                    alert('Chamado aberto com sucesso!');
                     document.getElementById('formChamado').reset();
                     carregarEstatisticas(); // Atualiza os cards na hora
                 } else {
-                    alert('Erro ao abrir o chamado: ' + resultado.erro);
+                    alert('Erro ao abrir o chamado.');
                 }
             } catch (erro) {
                 console.error('Erro:', erro);
-                alert('Erro de conexão com o servidor do Google.');
-            } finally {
-                botao.innerText = "Enviar Chamado";
-                botao.disabled = false;
+                alert('Erro de conexão com o servidor.');
             }
         });
     </script>
 
     <!-- Rodapé do Sistema -->
-<footer class="footer-sistema">
-    <div class="footer-content">
-        <p>Desenvolvido por <strong>Fernando Pereira Nilsen</strong></p>
-        <p class="footer-version">Versão 1.0.0 &bull; 2026</p>
-    </div>
-</footer>
+    <footer class="footer-sistema">
+        <div class="footer-content">
+            <p>Desenvolvido por <strong>Fernando Pereira Nilsen</strong></p>
+            <p class="footer-version">Versão 1.0.1 &bull; 2026</p>
+        </div>
+    </footer>
 
+    <!-- Botão flutuante para alternar o Dark Mode -->
+    <button id="btn-dark-mode" onclick="alternarDarkMode()" title="Alternar Modo Escuro">🌙</button>
+
+    <!-- Script do Dark Mode -->
+    <script>
+        // Função para alternar entre claro e escuro
+        function alternarDarkMode() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            
+            // Salva a preferência no navegador do usuário
+            localStorage.setItem('darkMode', isDark);
+            
+            // Muda o ícone do botão
+            const btn = document.getElementById('btn-dark-mode');
+            btn.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // Ao carregar a página, verifica se o usuário já havia ativado o escuro antes
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark');
+                const btn = document.getElementById('btn-dark-mode');
+                if (btn) btn.textContent = '☀️';
+            }
+        });
+    </script>
 </body>
 </html>
